@@ -268,6 +268,92 @@
     transform-style:preserve-3d;
     will-change:transform;
 }
+    #creditos {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 0, 0, 0.98); /* Quase preto sólido */
+    color: white;
+    display: none;
+    overflow: hidden;
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+}
+
+.fechar-creditos {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 10px 20px;
+    font-family: 'Syncopate';
+    font-size: 0.7rem;
+    cursor: pointer;
+    z-index: 10001;
+    transition: 0.3s;
+}
+
+.fechar-creditos:hover {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 0 20px var(--accent);
+}
+
+.creditos-conteudo {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 100%; /* Começa fora da tela embaixo */
+}
+
+/* Animação de subida suave */
+.animar-subida {
+    animation: subir-creditos 30s linear forwards;
+}
+
+.creditos-conteudo h1 {
+    font-family: 'Syncopate';
+    font-size: clamp(2rem, 5vw, 4rem);
+    margin: 20px 0 60px 0;
+    letter-spacing: 15px;
+    color: #fff;
+}
+
+.creditos-secao {
+    margin-bottom: 60px;
+}
+
+.creditos-secao h2 {
+    font-family: 'Syncopate';
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.creditos-secao p {
+    font-size: 1.4rem;
+    font-weight: 300;
+    margin: 10px 0;
+    letter-spacing: 2px;
+}
+
+.creditos-final {
+    margin-top: 100px;
+    padding-bottom: 100px;
+    font-family: 'Syncopate';
+    font-size: 0.8rem;
+}
+
+@keyframes subir-creditos {
+    from { top: 100%; }
+    to { top: -150%; } /* Ajuste aqui dependendo do tamanho do seu texto */
+}
+
     </style>
 </head>
 <body>
@@ -469,20 +555,94 @@ font-weight:900;
                 </div>
             </div>
         </section>
+<div style="text-align: center; margin-top: 50px;">
+    <button onclick="abrirCreditos()" class="btn-main reveal">
+        <i class="fa-solid fa-film" style="margin-right: 10px;"></i> Ver Créditos
+    </button>
+</div>
+
+<div id="creditos">
+    <button class="fechar-creditos" onclick="fecharCreditos()">&times; FECHAR</button>
+    
+    <div class="creditos-conteudo" id="creditos-scroll">
+        <span style="color: var(--accent); font-family: 'Syncopate'; letter-spacing: 10px;">PROJETO IMPACTO 2026</span>
+        <h1>CRÉDITOS</h1>
+
+        <div class="creditos-secao">
+            <h2><i class="fa-solid fa-screwdriver-wrench"></i> FERRAMENTAS</h2>
+            <p>Gemini 1.5 Pro</p>
+            <p>Visual Studio Code</p>
+            <p>Web Code Engine</p>
+            <p>GitHub Enterprise</p>
+        </div>
+
+        <div class="creditos-secao">
+            <h2><i class="fa-solid fa-code"></i> DESENVOLVIMENTO CORE</h2>
+            <p>Kaio Cesar</p>
+        </div>
+
+        <div class="creditos-secao">
+            <h2><i class="fa-solid fa-magnifying-glass"></i> INTELIGÊNCIA E PESQUISA</h2>
+            <p>G. Moreira</p>
+            <p>R. Lucas</p>
+            <p>K. Cesar</p>
+            <p>H. Victor</p>
+            <p>G. Egídio</p>
+        </div>
+
+        <div class="creditos-secao">
+            <h2><i class="fa-solid fa-microphone"></i> APRESENTAÇÃO</h2>
+            <p>Kaio Cesar</p>
+            <p>G. Moreira</p>
+        </div>
+
+        <div class="creditos-secao">
+            <h2><i class="fa-solid fa-globe"></i> FONTES DOCUMENTAIS</h2>
+            <p>Wikipedia.org</p>
+            <p>MDN Web Docs</p>
+            <p>Stack Overflow</p>
+            <p>W3Schools</p>
+        </div>
+
+        <div class="creditos-final">
+            <p>© 2026 — Todos os direitos reservados</p>
+            <div style="width: 50px; height: 2px; background: var(--accent); margin: 20px auto;"></div>
+            <p style="font-size: 0.7rem; opacity: 0.5;">SISTEMA OPERACIONAL TERMINAL v4.0</p>
+        </div>
+    </div>
+</div>
 
         <footer>
-            <div>
-                <p>DESENVOLVIMENTO:</p>
-                <p style="color: white; font-weight: 700;">G. Moreira, R. Lucas, K. Cesar, H. Victor, G. Egídio</p>
-            </div>
+            
             <div style="text-align: right;">
-                <p>© 2026 PROJETO IMPACTO</p>
+                <p>© 2026 PROJETO - VIOLENCIA FISICA - 2 REG 6</p>
                 <p style="color: white; font-weight: 700;">DADOS EM TEMPO REAL</p>
             </div>
         </footer>
     </div>
 
     <script>
+function abrirCreditos() {
+    const painel = document.getElementById("creditos");
+    const conteudo = document.getElementById("creditos-scroll");
+    
+    painel.style.display = "block";
+    conteudo.classList.add("animar-subida");
+    
+    // Oculta o cursor durante os créditos para maior imersão
+    if(document.getElementById('cursor')) document.getElementById('cursor').style.display = 'none';
+}
+
+function fecharCreditos() {
+    const painel = document.getElementById("creditos");
+    const conteudo = document.getElementById("creditos-scroll");
+    
+    painel.style.display = "none";
+    conteudo.classList.remove("animar-subida"); // Reseta a animação para a próxima vez
+    
+    if(document.getElementById('cursor')) document.getElementById('cursor').style.display = 'block';
+}
+
 const counters=document.querySelectorAll(".count");
 
 const counterObs=new IntersectionObserver(entries=>{
@@ -611,7 +771,13 @@ document.querySelectorAll(".interactive-card").forEach(card=>{
         new Chart(pizzaCtx, {
             type: 'pie', // Alterado para Pie para efeito de offset mais visível
             data: {
-                labels: ['Espancamento', 'Objetos/Armas', 'Sufocamento', 'Queimaduras', 'Outros'],
+                labels: [
+'Violência Física',
+'Violência Psicológica',
+'Violência Moral',
+'Violência Patrimonial',
+'Violência Sexual'
+],
                 datasets: [{
                     data: [50, 25, 15, 5, 5],
                     backgroundColor: ['#ff0000', '#cc0000', '#990000', '#660000', '#330000'],
