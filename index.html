@@ -2,222 +2,549 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATIVIDADE QUEM SOU EU - FUNDAÇÃO CDL</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/scrollreveal"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SUSSURROS | Deluxe Horror Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0a;
-            --accent: #ff3333; 
-            --glass: rgba(30, 30, 30, 0.6);
-            --border: rgba(255, 255, 255, 0.15);
-            --text: #eeeeee;
-            --number-color: #ffffff; /* Números agora bem claros */
+            --bg: #020202;
+            --marta: #ffb7e9;
+            --ricardo: #b7e9ff;
+            --accent: #f4d35e;
+            --blood: #4a0000;
+            --glass: rgba(10, 10, 10, 0.95);
+            --shadow-blue: #1a1a2e;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            line-height: 1.7;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; background: #000; color: #eee;
+            font-family: 'VT323', monospace; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
         }
 
-        #bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.05) 0%, transparent 80%);
-            z-index: -1;
+        /* Efeito de Scanlines e Ruído */
+        #viewport::before {
+            content: "";
+            position: absolute; inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            z-index: 9999; pointer-events: none; opacity: 0.3;
         }
 
-        .container { max-width: 850px; margin: 0 auto; padding: 0 25px; }
-
-        header {
-            height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
+        #viewport {
+            width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
         }
 
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(3.5rem, 12vw, 7rem);
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 0.9;
-            color: #fff;
-            margin-bottom: 15px;
+        #game-frame {
+            width: 100%; height: 100%;
+            max-width: 1000px; max-height: 700px;
+            position: relative; background: var(--bg);
+            border: 2px solid rgba(255,255,255,0.05);
+            overflow: hidden;
+            box-shadow: 0 0 100px rgba(0,0,0,1);
         }
 
-        .tagline {
-            color: var(--accent);
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 2px;
-            font-size: 0.8rem;
-            margin-bottom: 5px;
+        #dust-canvas {
+            position: absolute; inset: 0;
+            z-index: 2; pointer-events: none;
         }
 
-        section {
-            padding: 80px 0;
-            border-bottom: 1px solid var(--border);
+        /* --- CENÁRIO DINÂMICO --- */
+        .scenery {
+            position: absolute; bottom: 30%; z-index: 2;
+            filter: brightness(0.2) contrast(1.2) blur(1px);
+            transition: all 2.5s ease-in-out; pointer-events: none;
+        }
+        #grave-1 { left: 5%; width: 120px; bottom: 28%; }
+        #grave-2 { right: 8%; width: 100px; bottom: 26%; }
+        #chapel { 
+            left: 50%; transform: translateX(-50%); 
+            width: 350px; bottom: 32%; opacity: 0.2; 
         }
 
-        .step-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
+        #the-ring {
+            position: absolute; bottom: 38%; left: 50%;
+            width: 20px; height: 10px;
+            background: radial-gradient(ellipse at center, #fff 0%, transparent 80%);
+            z-index: 15; border-radius: 50%;
+            filter: drop-shadow(0 0 10px var(--accent));
+            animation: ringPulse 3s infinite;
+            display: none;
         }
+        @keyframes ringPulse { 0%, 100% { opacity: 0.1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.5); } }
 
-        .number {
-            font-family: 'Orbitron';
-            font-size: 3rem;
-            color: var(--number-color);
-            font-weight: 900;
-            opacity: 0.9;
+        /* --- MENU --- */
+        #menu {
+            position: absolute; inset: 0; z-index: 5000; background: #000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-
-        h2 {
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #fff;
-        }
-
-        .content-box {
-            background: var(--glass);
-            padding: 35px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(15px);
-            transition: 0.4s;
-        }
-
-        .content-box:hover {
-            border-color: var(--accent);
-            transform: scale(1.01);
-        }
-
-        .family-img {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border: 1px solid var(--accent);
-            filter: contrast(1.1);
-        }
-
-        .btn-action {
-            display: inline-block;
-            background: #fff;
-            color: #000;
-            padding: 18px 35px;
-            font-weight: 700;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-top: 50px;
-            transition: 0.3s;
-            font-family: 'Orbitron';
-            font-size: 0.7rem;
-        }
-
-        .btn-action:hover {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 10px 30px rgba(255, 51, 51, 0.4);
-        }
-
-        .footer-text {
+        .menu-title { 
+            font-family: 'Special Elite', serif; 
+            font-size: clamp(40px, 10vw, 85px); 
+            letter-spacing: 15px; color: #fff;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
             text-align: center;
-            padding: 60px 0;
-            font-size: 0.7rem;
-            color: #555;
-            letter-spacing: 1px;
+            animation: titleGlitch 5s infinite;
         }
+        @keyframes titleGlitch { 0%, 90% { transform: skew(0); } 92% { transform: skew(5deg); opacity: 0.5; } 94% { transform: skew(-5deg); } }
+        
+        .btn-start { 
+            margin-top: 50px; background: none; border: 1px solid #333; 
+            color: #888; padding: 15px 50px; font-size: 28px; cursor: pointer; 
+            transition: 0.5s; font-family: inherit;
+        }
+        .btn-start:hover { border-color: var(--accent); color: var(--accent); letter-spacing: 8px; background: rgba(244, 211, 94, 0.05); }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 4rem; }
-            .content-box { padding: 20px; }
-            .number { font-size: 2.5rem; }
+        /* --- INTRO SCROLL --- */
+        #intro { position: absolute; inset: 0; background: #000; z-index: 4000; display: none; justify-content: center; padding: 40px; }
+        #intro-scroll { position: absolute; width: 85%; max-width: 650px; text-align: center; bottom: -100%; }
+        .scrolling { animation: scrollText 25s linear forwards; }
+        @keyframes scrollText { 0% { bottom: -110%; } 100% { bottom: 140%; } }
+        .intro-text { font-size: clamp(22px, 5vw, 30px); color: var(--accent); line-height: 2; font-style: italic; opacity: 0.8; }
+
+        /* --- CENA --- */
+        #scene-bg { position: absolute; inset: 0; transition: background 3s ease; z-index: 1; opacity: 0.4; }
+        #vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 30%, #000 130%); z-index: 5; pointer-events: none; }
+        #screen-fade { position: absolute; inset: 0; background: #000; z-index: 3000; pointer-events: none; opacity: 0; transition: opacity 1.5s; }
+        #flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 200; pointer-events: none; }
+
+        .char-area {
+            position: absolute; bottom: 32%; width: 100%;
+            display: flex; justify-content: space-around; z-index: 10;
         }
+        .actor { 
+            width: clamp(120px, 25vw, 180px); 
+            opacity: 0; 
+            transform: translateY(60px) scale(0.9); 
+            transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+            filter: grayscale(0.5);
+        }
+        .actor.active { opacity: 0.8; transform: translateY(0) scale(1); }
+        .actor.focus { opacity: 1; transform: scale(1.15); filter: grayscale(0); drop-shadow: 0 0 20px rgba(255,255,255,0.05); }
+
+        /* --- UI DIÁLOGO --- */
+        #ui {
+            position: absolute; bottom: 30px; left: 30px; right: 30px;
+            background: var(--glass); 
+            padding: 35px; z-index: 100; min-height: 240px;
+            display: none; border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+        }
+        #ui-name { font-size: 26px; color: var(--accent); margin-bottom: 12px; letter-spacing: 5px; text-transform: uppercase; display: inline-block; }
+        #ui-text { font-size: 24px; line-height: 1.6; color: #ddd; white-space: pre-wrap; }
+        
+        .choices { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px; }
+        .btn-choice { 
+            background: rgba(20,20,20,0.4); border: 1px solid rgba(255,255,255,0.1); 
+            color: #888; padding: 15px 25px; font-family: inherit; font-size: 20px; 
+            cursor: pointer; flex: 1 1 45%; text-align: left; transition: 0.4s;
+        }
+        .btn-choice:hover { border-color: var(--accent); color: #fff; background: rgba(244, 211, 94, 0.05); padding-left: 35px; }
+
+        /* --- FINAL --- */
+        #end { 
+            position: absolute; inset: 0; background: #000; z-index: 6000; 
+            display: none; flex-direction: column; justify-content: center; 
+            align-items: center; text-align: center; padding: 40px;
+            opacity: 0; transition: opacity 4s ease;
+        }
+        #end-title { font-size: 70px; color: #700; letter-spacing: 12px; margin-bottom: 30px; font-family: 'Special Elite'; }
+        
+        .shake { animation: shakeAnim 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shakeAnim { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+
     </style>
 </head>
 <body>
 
-<div id="bg-glow"></div>
+<div id="viewport">
+    <div id="game-frame">
+        <canvas id="dust-canvas"></canvas>
+        <div id="screen-fade"></div>
+        <div id="flash"></div>
+        <div id="vignette"></div>
 
-<div class="container">
-    <header class="reveal">
-        <p class="tagline">Atividade Quem Sou Eu - Fundação CDL</p>
-        <h1>KAIO<br>CESAR</h1>
-        <p style="color: #888; margin-top: 10px;">Foco no objetivo, fé no processo.</p>
-    </header>
+        <div id="chapel" class="scenery">
+            <svg viewBox="0 0 200 200">
+                <path d="M20,200 L180,200 L180,100 L100,20 L20,100 Z" fill="#111" />
+                <rect x="85" y="150" width="30" height="50" fill="#000" />
+                <path d="M100,40 L100,70 M85,55 L115,55" stroke="#333" stroke-width="2" />
+            </svg>
+        </div>
+        <div id="grave-1" class="scenery">
+            <svg viewBox="0 0 100 120">
+                <path d="M10,120 L90,120 Q90,20 50,20 Q10,20 10,120" fill="#1a1a1a" />
+                <path d="M40,50 L60,50 M50,40 L50,70" stroke="#000" stroke-width="2"/>
+            </svg>
+        </div>
+        <div id="grave-2" class="scenery">
+            <svg viewBox="0 0 80 100">
+                <rect x="10" y="20" width="60" height="80" fill="#151515" />
+                <circle cx="40" cy="45" r="10" fill="#000" />
+            </svg>
+        </div>
+        <div id="the-ring"></div>
 
-    <section>
-        <div class="step-info">
-            <span class="number">01</span>
-            <h2 class="reveal">Quem sou eu hoje?</h2>
+        <div id="menu">
+            <h1 class="menu-title">SUSSURROS<br><span style="font-size: 18px; letter-spacing: 4px; color: #444;">O ÚLTIMO JAZIGO</span></h1>
+            <button class="btn-start" onclick="initIntro()">OUVIR O RELATO</button>
         </div>
-        <div class="content-box reveal">
-            <img src="https://i.imgur.com/ESmxwRf.jpeg" alt="Minha Família" class="family-img">
-            <p>Eu me considero um cara muito firme com os meus valores. Minhas três qualidades principais são a educação com todo mundo, a minha humildade de saber de onde eu vim e o fato de eu ser um cara gente boa, que sabe trocar ideia com qualquer pessoa.</p>
-        </div>
-    </section>
 
-    <section>
-        <div class="step-info">
-            <span class="number">02</span>
-            <h2 class="reveal">O que preciso melhorar?</h2>
+        <div id="intro">
+            <div id="intro-scroll">
+                <p class="intro-text">
+                    O JARDIM DE PEDRA DOS MEIRELES...<br><br>
+                    Um santuário de mármore e silêncio onde os mortos descansam, e os vivos se perdem.<br><br>
+                    Marta veio buscar o que lhe foi prometido.<br>
+                    Ricardo trouxe apenas o peso do passado...<br><br>
+                    E uma chave que range como um segredo que nunca deveria ser aberto.<br><br>
+                    "A noite não perdoa quem procura por tesouros sob a terra."
+                </p>
+            </div>
         </div>
-        <div class="content-box reveal">
-            <p>Quero aprender a ser mais estratégico. Meu objetivo é falar apenas o que for necessário para as pessoas certas, guardando meus planos para mim e focando mais na execução do que na fala.</p>
-        </div>
-    </section>
 
-    <section>
-        <div class="step-info">
-            <span class="number">03</span>
-            <h2 class="reveal">Quem me influencia?</h2>
+        <div id="scene-bg"></div>
+        
+        <div class="char-area">
+            <div id="marta" class="actor" onclick="showThought('marta')">
+                <svg viewBox="0 0 100 150">
+                    <path d="M20,140 L80,140 L70,50 Q50,20 30,50 Z" fill="var(--marta)" />
+                    <circle cx="50" cy="45" r="32" fill="var(--marta)" />
+                    <rect x="42" y="44" width="3" height="3" fill="#000" />
+                    <rect x="55" y="44" width="3" height="3" fill="#000" />
+                </svg>
+            </div>
+            <div id="ricardo" class="actor" onclick="showThought('ricardo')">
+                <svg viewBox="0 0 100 150">
+                    <path d="M20,140 L80,140 L70,50 Q50,20 30,50 Z" fill="var(--ricardo)" />
+                    <circle cx="50" cy="45" r="32" fill="var(--ricardo)" />
+                    <rect x="42" y="44" width="3" height="3" fill="#000" />
+                    <rect x="55" y="44" width="3" height="3" fill="#000" />
+                </svg>
+            </div>
         </div>
-        <div class="content-box reveal">
-            <p>Sem dúvidas, minha mãe é a pessoa que mais manda na minha forma de pensar. Essa influência me dá muita força, porque tudo o que eu faço desde os 13 anos, buscando crescer no mundo digital, é para dar uma vida melhor para ela e dar esse susto positivo nela com os meus resultados.</p>
-        </div>
-    </section>
 
-    <section>
-        <div class="step-info">
-            <span class="number">04</span>
-            <h2 class="reveal">Uma habilidade para o futuro</h2>
+        <div id="ui">
+            <div id="ui-name"></div>
+            <div id="ui-text"></div>
+            <div class="choices" id="choice-box"></div>
         </div>
-        <div class="content-box reveal">
-            <p>Preciso aprender a dominar minha ansiedade. Às vezes a gente quer que tudo aconteça agora, mas na prática eu vou começar a exercitar a paciência e manter a cabeça no lugar, focando no trabalho de hoje para colher amanhã.</p>
-        </div>
-    </section>
 
-    <section>
-        <div class="step-info">
-            <span class="number">05</span>
-            <h2 class="reveal">Carta para daqui a 5 anos</h2>
+        <div id="end">
+            <h1 id="end-title"></h1>
+            <p id="end-desc" style="font-size: 24px; color: #888; max-width: 600px; line-height: 1.6;"></p>
+            <button class="btn-start" onclick="location.reload()" style="margin-top: 40px;">RETORNAR AO VAZIO</button>
         </div>
-        <div class="content-box reveal" style="border-left: 4px solid var(--accent);">
-            <p>E aí, Kaio do futuro. Espero que você já esteja com sua equipe de divulgação a todo vapor e que a grana já esteja entrando firme. Você está se tornando aquele cara que cuida de todo mundo e que não esqueceu as raízes.</p>
-            <p style="margin-top: 15px;">Tenho medo de você perder essa essência de moleque humilde, então não deixa o sucesso subir à cabeça. O conselho que eu te dou hoje é: continue sendo esse adulto que respeita os outros e não repita os erros de querer abraçar o mundo de uma vez. Devagar a gente chega lá.</p>
-        </div>
-    </section>
-
-   
+    </div>
+</div>
 
 <script>
-    ScrollReveal().reveal('.reveal', { 
-        distance: '40px', duration: 1000, interval: 150, origin: 'bottom', opacity: 0 
-    });
-</script>
+    /* --- MOTOR DE ÁUDIO --- */
+    const Sound = {
+        ctx: null, master: null, amb: null, lfo: null, tension: 1,
+        init() {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.master = this.ctx.createGain();
+            this.master.connect(this.ctx.destination);
+            this.updateAmbience();
+        },
+        updateAmbience() {
+            if (this.amb) { this.amb.stop(); this.lfo.stop(); }
+            this.amb = this.ctx.createOscillator();
+            this.lfo = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            
+            this.amb.type = 'sawtooth';
+            this.amb.frequency.setValueAtTime(this.tension === 1 ? 35 : 55, this.ctx.currentTime);
+            
+            this.lfo.frequency.value = this.tension === 1 ? 0.4 : 5;
+            const lfoG = this.ctx.createGain();
+            lfoG.gain.value = this.tension === 1 ? 8 : 25;
+            
+            g.gain.value = 0.015;
+            this.lfo.connect(lfoG); lfoG.connect(this.amb.frequency);
+            this.amb.connect(g); g.connect(this.master);
+            this.amb.start(); this.lfo.start();
+        },
+        play(freq, type = 'sine', dur = 0.1, vol = 0.01) {
+            const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            o.type = type; o.frequency.value = freq;
+            g.gain.setValueAtTime(vol, this.ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + dur);
+            o.connect(g); g.connect(this.master); o.start(); o.stop(this.ctx.currentTime + dur);
+        }
+    };
 
+    const story = {
+        "start": {
+            name: "Ricardo",
+            text: "O sol está se pondo, Marta... Veja como o céu sangra sobre os túmulos. \n\nSempre achei que os mortos são os únicos que sabem apreciar um belo crepúsculo.",
+            bg: "linear-gradient(180deg, #1a0a1a 0%, #000 100%)",
+            chars: ["ricardo"], focus: "ricardo", tension: 1,
+            thoughts: { ricardo: "Paciência...", marta: "Frio..." },
+            next: [ { t: "Por que nos encontramos aqui?", n: "motivo" }, { t: "Você está me assustando.", n: "medo" } ]
+        },
+        "motivo": {
+            name: "Marta",
+            text: "Você disse que tinha encontrado o anel da minha avó. O anel que sumiu no dia em que você partiu.\n\nPor que me trouxe a este lugar desolado?",
+            bg: "linear-gradient(180deg, #0a1a1a 0%, #000 100%)",
+            chars: ["marta", "ricardo"], focus: "marta", tension: 1,
+            thoughts: { ricardo: "Quase...", marta: "Ansiedade" },
+            next: [{ t: "Esperar a resposta dele", n: "revelacao" }]
+        },
+        "medo": {
+            name: "Ricardo",
+            text: "O medo é apenas o respeito pelo desconhecido. Você sempre teve pavor da eternidade, Marta.\n\nMas hoje... eu vou te apresentar a ela.",
+            bg: "linear-gradient(180deg, #2a0000 0%, #000 100%)",
+            chars: ["ricardo", "marta"], focus: "ricardo", tension: 2, shake: true,
+            thoughts: { ricardo: "Poder", marta: "Tremedeira" },
+            next: [{ t: "Recuar um passo", n: "revelacao" }]
+        },
+        "revelacao": {
+            name: "Ricardo",
+            text: "O anel está guardado. Todos os tesouros da minha família estão naquela capela.\n\nA porta de bronze é pesada, mas o silêncio lá dentro... é o único conforto que resta.",
+            bg: "#050505", chars: ["ricardo"], focus: "ricardo", tension: 1,
+            thoughts: { ricardo: "Herança", marta: "Desconfiança" },
+            next: [ { t: "Pedir para ver o anel agora", n: "exigencia" }, { t: "Olhar para a capela", n: "capela_olhar" } ]
+        },
+        "exigencia": {
+            name: "Marta",
+            text: "Chega de jogos, Ricardo! Me dê o anel e eu vou embora. O ar aqui está ficando impossível de respirar.",
+            bg: "linear-gradient(180deg, #1a002a 0%, #000 100%)",
+            chars: ["marta"], focus: "marta", tension: 2,
+            thoughts: { marta: "Sufoco", ricardo: "Sorriso" },
+            next: [{ t: "Ele começa a caminhar", n: "sorriso" }]
+        },
+        "capela_olhar": {
+            name: "Narrador",
+            text: "A capela dos Meireles ergue-se como um dente podre no meio do jardim.\n\nRicardo retira uma chave de bronze do bolso. O metal brilha com um reflexo doentio sob a lua.",
+            bg: "#000", chars: ["ricardo", "marta"], tension: 1,
+            thoughts: { ricardo: "Destino", marta: "Fuga?" },
+            next: [{ t: "Segui-lo até o portão", n: "portao" }]
+        },
+        "sorriso": {
+            name: "Ricardo",
+            text: "O amor requer sacrifício, Marta. Você nunca entendeu isso.\n\nVenha, o anel está sobre o altar. É o último desejo de um homem que nunca te esqueceu.",
+            bg: "linear-gradient(180deg, #400 0%, #000 100%)",
+            chars: ["ricardo"], focus: "ricardo", tension: 2,
+            thoughts: { ricardo: "Obsessão", marta: "Pânico" },
+            next: [ { t: "Entrar na capela", n: "final_morte" }, { t: "Recusar e correr", n: "fuga_desespero" } ]
+        },
+        "portao": {
+            name: "Ricardo",
+            text: "*O som da chave girando range como um osso quebrando*\n\nAqui estamos. O fim da linha. Ou talvez o começo de uma estadia muito... longa.",
+            bg: "#000", chars: ["ricardo", "marta"], tension: 2, shake: true,
+            thoughts: { ricardo: "Triunfo", marta: "Paralisia" },
+            next: [ { t: "Entrar com ele", n: "final_morte" }, { t: "Empurrá-lo e fugir", n: "fuga_desespero" } ]
+        },
+        "fuga_desespero": {
+            name: "Narrador",
+            text: "Você corre. Suas unhas arranham o metal frio do portão principal. ESTÁ TRANCADO! \n\nRicardo apenas observa à distância, segurando a única chave com um sorriso gélido.",
+            bg: "#000",
+            chars: ["marta"], focus: "marta", tension: 2,
+            shake: true,
+            thoughts: { marta: "Arrependimento", ricardo: "Desprezo" },
+            next: [
+                { t: "Gritar por socorro", n: "final_prisao" },
+                { t: "Enfrentar Ricardo", n: "final_morte" }
+            ]
+        },
+        "final_morte": { 
+            title: "O JAZIGO", 
+            desc: "O mundo se apaga com um som metálico final... \n\nVocê sente o hálito frio de Ricardo enquanto a porta de bronze se fecha para sempre. \n\n'Finalmente juntos...' ele sussurra no escuro absoluto. \n\nNão haverá amanhã para você.", 
+            end: true, 
+            type: "death" 
+        },
+        "final_prisao": { 
+            title: "A SOMBRA", 
+            desc: "Seus gritos tornam-se parte do vento gélido. \n\nRicardo caminha em direção à saída, sua silhueta sumindo na névoa da noite. \n\nVocê foi deixada para trás. Condenada a habitar o silêncio entre as pedras. \n\nPara sempre.", 
+            end: true, 
+            type: "shadow" 
+        }
+    };
+
+    let curId = "start";
+    let typing = false;
+    let particles = [];
+    const canvas = document.getElementById('dust-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function initParticles() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        for(let i=0; i<80; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 0.5,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                color: 'rgba(255, 255, 255, 0.2)'
+            });
+        }
+    }
+
+    function updateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            let mult = SoundManager.tensionLevel === 2 ? 3 : 1;
+            p.x += p.vx * mult; p.y += p.vy * mult;
+            if(p.x < 0) p.x = canvas.width; if(p.x > canvas.width) p.x = 0;
+            if(p.y < 0) p.y = canvas.height; if(p.y > canvas.height) p.y = 0;
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+        });
+        requestAnimationFrame(updateParticles);
+    }
+
+    function showThought(actorId) {
+        if(typing) return;
+        const actor = document.getElementById(actorId);
+        if(!actor.classList.contains('active')) return;
+        SoundManager.playWhisper();
+        const node = story[curId];
+        const text = node.thoughts[actorId];
+        if(!text) return;
+        const old = actor.querySelector('.thought-bubble');
+        if(old) old.remove();
+        const bubble = document.createElement('div');
+        bubble.className = 'thought-bubble';
+        bubble.innerText = `...${text}...`;
+        actor.appendChild(bubble);
+    }
+
+    function initIntro() {
+        SoundManager.init();
+        document.getElementById('menu').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('menu').style.display = 'none';
+            const intro = document.getElementById('intro');
+            const scroll = document.getElementById('intro-scroll');
+            intro.style.display = 'flex';
+            scroll.classList.add('scrolling');
+            setTimeout(startGame, 27000);
+        }, 2000);
+    }
+
+    function startGame() {
+        document.getElementById('intro').style.display = 'none';
+        document.getElementById('ui').style.display = 'block';
+        initParticles();
+        updateParticles();
+        renderScene();
+    }
+
+    function renderScene() {
+        const node = story[curId];
+        if(node.end) { animateEnd(node); return; }
+
+        if(node.tension !== undefined && node.tension !== SoundManager.tensionLevel) {
+            SoundManager.tensionLevel = node.tension;
+            SoundManager.playAmbience(); 
+        }
+
+        const fade = document.getElementById('screen-fade');
+        fade.style.opacity = "1";
+
+        setTimeout(() => {
+            if(node.shake) {
+                SoundManager.playImpact();
+                document.getElementById('viewport').classList.add('shake');
+                setTimeout(() => document.getElementById('viewport').classList.remove('shake'), 500);
+            }
+            document.getElementById('scene-bg').style.background = node.bg;
+            document.getElementById('marta').classList.toggle('active', node.chars.includes('marta'));
+            document.getElementById('ricardo').classList.toggle('active', node.chars.includes('ricardo'));
+            document.getElementById('marta').classList.toggle('focus', node.focus === 'marta');
+            document.getElementById('ricardo').classList.toggle('focus', node.focus === 'ricardo');
+            document.getElementById('ui-name').innerText = node.name;
+            fade.style.opacity = "0";
+            typeText(node.text);
+        }, 1200);
+    }
+
+    async function typeText(t) {
+        typing = true;
+        const el = document.getElementById('ui-text');
+        el.textContent = ""; document.getElementById('choice-box').innerHTML = "";
+        for(let i=0; i<t.length; i++) {
+            el.textContent += t[i];
+            if(t[i] !== " " && t[i] !== "\n") SoundManager.playType();
+            await new Promise(r => setTimeout(r, ".!?".includes(t[i]) ? 500 : (SoundManager.tensionLevel === 1 ? 35 : 20)));
+        }
+        typing = false;
+        showChoices();
+    }
+
+    function showChoices() {
+        story[curId].next.forEach(o => {
+            const b = document.createElement('button');
+            b.className = 'btn-choice';
+            b.innerText = "◈ " + o.t;
+            b.onclick = () => { if(!typing) { curId = o.n; renderScene(); } };
+            document.getElementById('choice-box').appendChild(b);
+        });
+    }
+
+    function animateEnd(node) {
+        document.getElementById('ui').style.display = 'none';
+        const marta = document.getElementById('marta');
+        const ricardo = document.getElementById('ricardo');
+
+        // MÚSICA MORRE E IMPACTO TOCA
+        SoundManager.stopAll();
+        setTimeout(() => SoundManager.playImpact(true), 100);
+
+        if(node.type === "death") {
+            // Fade Out dos personagens
+            marta.style.transition = "opacity 2s, transform 2s";
+            ricardo.style.transition = "opacity 2s, transform 2s";
+            marta.style.opacity = "0";
+            ricardo.style.opacity = "0";
+            marta.style.transform = "translateY(50px)";
+            ricardo.style.transform = "translateY(50px)";
+            
+            document.getElementById('viewport').classList.add('shake');
+            document.getElementById('flash').classList.add('morte-flash');
+            
+            setTimeout(() => showEndUI(node), 2500);
+        } else {
+            ricardo.style.opacity = '0';
+            ricardo.style.transition = 'opacity 4s';
+            marta.style.filter = 'grayscale(100%)';
+            setTimeout(() => showEndUI(node), 3000);
+        }
+    }
+
+    function showEndUI(node) {
+        const end = document.getElementById('end');
+        end.style.display = 'flex';
+        setTimeout(() => end.style.opacity = "1", 100);
+        
+        document.getElementById('end-title').innerText = node.title;
+        const desc = document.getElementById('end-desc');
+        desc.textContent = "";
+        
+        let i = 0;
+        const t = setInterval(() => {
+            desc.textContent += node.desc[i];
+            if(node.desc[i] !== " ") SoundManager.playType();
+            i++;
+            if(i >= node.desc.length) clearInterval(t);
+        }, 50);
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+
+</script>
 </body>
 </html>
