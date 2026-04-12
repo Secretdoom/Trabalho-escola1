@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUSSURROS | Deluxe Horror Edition</title>
+    <title>SUSSURRO | Venha Ver o Pôr do Sol</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #020202;
-            --marta: #ffb7e9;
-            --ricardo: #b7e9ff;
-            --accent: #f4d35e;
-            --blood: #4a0000;
-            --glass: rgba(10, 10, 10, 0.95);
-            --shadow-blue: #1a1a2e;
+            --bg: #050505;
+            --accent: #ff7e33; 
+            --ui-bg: rgba(0, 0, 0, 0.9);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body {
             margin: 0; background: #000; color: #eee;
@@ -25,526 +21,244 @@
             overflow: hidden;
         }
 
-        /* Efeito de Scanlines e Ruído */
-        #viewport::before {
-            content: "";
+        #viewport { width: 100vw; height: 100vh; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+
+        #vignette {
             position: absolute; inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%;
-            z-index: 9999; pointer-events: none; opacity: 0.3;
+            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.85) 150%);
+            z-index: 100; pointer-events: none;
         }
 
-        #viewport {
-            width: 100%; height: 100%;
-            display: flex; justify-content: center; align-items: center;
-            position: relative;
+        #scene-bg { 
+            position: absolute; inset: 0; 
+            background-size: cover; background-position: center;
+            transition: opacity 1.5s ease-in-out, filter 1.5s ease-in-out, transform 4s ease-out; 
+            z-index: 1; opacity: 0; filter: blur(20px);
         }
 
-        #game-frame {
-            width: 100%; height: 100%;
-            max-width: 1000px; max-height: 700px;
-            position: relative; background: var(--bg);
-            border: 2px solid rgba(255,255,255,0.05);
-            overflow: hidden;
-            box-shadow: 0 0 100px rgba(0,0,0,1);
-        }
-
-        #dust-canvas {
-            position: absolute; inset: 0;
-            z-index: 2; pointer-events: none;
-        }
-
-        /* --- CENÁRIO DINÂMICO --- */
-        .scenery {
-            position: absolute; bottom: 30%; z-index: 2;
-            filter: brightness(0.2) contrast(1.2) blur(1px);
-            transition: all 2.5s ease-in-out; pointer-events: none;
-        }
-        #grave-1 { left: 5%; width: 120px; bottom: 28%; }
-        #grave-2 { right: 8%; width: 100px; bottom: 26%; }
-        #chapel { 
-            left: 50%; transform: translateX(-50%); 
-            width: 350px; bottom: 32%; opacity: 0.2; 
-        }
-
-        #the-ring {
-            position: absolute; bottom: 38%; left: 50%;
-            width: 20px; height: 10px;
-            background: radial-gradient(ellipse at center, #fff 0%, transparent 80%);
-            z-index: 15; border-radius: 50%;
-            filter: drop-shadow(0 0 10px var(--accent));
-            animation: ringPulse 3s infinite;
-            display: none;
-        }
-        @keyframes ringPulse { 0%, 100% { opacity: 0.1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.5); } }
-
-        /* --- MENU --- */
         #menu {
             position: absolute; inset: 0; z-index: 5000; background: #000;
+            /* COLE O LINK DA CAPA ABAIXO */
+            background-image: url('https://i.imgur.com/pPCyWF6.gif'); 
+            background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        .menu-title { 
-            font-family: 'Special Elite', serif; 
-            font-size: clamp(40px, 10vw, 85px); 
-            letter-spacing: 15px; color: #fff;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
-            text-align: center;
-            animation: titleGlitch 5s infinite;
-        }
-        @keyframes titleGlitch { 0%, 90% { transform: skew(0); } 92% { transform: skew(5deg); opacity: 0.5; } 94% { transform: skew(-5deg); } }
+        .menu-title { font-family: 'Special Elite'; font-size: clamp(50px, 12vw, 90px); animation: glitch 0.4s infinite; color: var(--accent); text-shadow: 0 0 15px rgba(255,126,51,0.5); }
         
-        .btn-start { 
-            margin-top: 50px; background: none; border: 1px solid #333; 
-            color: #888; padding: 15px 50px; font-size: 28px; cursor: pointer; 
-            transition: 0.5s; font-family: inherit;
+        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-3px, 2px); } 40% { transform: translate(3px, -2px); opacity: 0.7; } 100% { transform: translate(0); } }
+
+        #intro-overlay {
+            position: absolute; inset: 0; background: #000; z-index: 4000;
+            display: none; flex-direction: column; align-items: center; overflow: hidden;
         }
-        .btn-start:hover { border-color: var(--accent); color: var(--accent); letter-spacing: 8px; background: rgba(244, 211, 94, 0.05); }
-
-        /* --- INTRO SCROLL --- */
-        #intro { position: absolute; inset: 0; background: #000; z-index: 4000; display: none; justify-content: center; padding: 40px; }
-        #intro-scroll { position: absolute; width: 85%; max-width: 650px; text-align: center; bottom: -100%; }
-        .scrolling { animation: scrollText 25s linear forwards; }
-        @keyframes scrollText { 0% { bottom: -110%; } 100% { bottom: 140%; } }
-        .intro-text { font-size: clamp(22px, 5vw, 30px); color: var(--accent); line-height: 2; font-style: italic; opacity: 0.8; }
-
-        /* --- CENA --- */
-        #scene-bg { position: absolute; inset: 0; transition: background 3s ease; z-index: 1; opacity: 0.4; }
-        #vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 30%, #000 130%); z-index: 5; pointer-events: none; }
-        #screen-fade { position: absolute; inset: 0; background: #000; z-index: 3000; pointer-events: none; opacity: 0; transition: opacity 1.5s; }
-        #flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 200; pointer-events: none; }
-
-        .char-area {
-            position: absolute; bottom: 32%; width: 100%;
-            display: flex; justify-content: space-around; z-index: 10;
+        #crawl-container {
+            position: relative; width: 80%; top: 100%;
+            text-align: justify; font-size: 28px; color: var(--accent);
+            animation: crawl 25s linear forwards;
         }
-        .actor { 
-            width: clamp(120px, 25vw, 180px); 
-            opacity: 0; 
-            transform: translateY(60px) scale(0.9); 
-            transition: all 1.5s cubic-bezier(0.19, 1, 0.22, 1);
-            filter: grayscale(0.5);
-        }
-        .actor.active { opacity: 0.8; transform: translateY(0) scale(1); }
-        .actor.focus { opacity: 1; transform: scale(1.15); filter: grayscale(0); drop-shadow: 0 0 20px rgba(255,255,255,0.05); }
+        @keyframes crawl { 0% { top: 100%; } 100% { top: -130%; } }
 
-        /* --- UI DIÁLOGO --- */
         #ui {
-            position: absolute; bottom: 30px; left: 30px; right: 30px;
-            background: var(--glass); 
-            padding: 35px; z-index: 100; min-height: 240px;
-            display: none; border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+            position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 700px;
+            background: var(--ui-bg); padding: 30px; z-index: 2000; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 2px;
+            display: none; opacity: 0; transition: opacity 0.8s ease;
         }
-        #ui-name { font-size: 26px; color: var(--accent); margin-bottom: 12px; letter-spacing: 5px; text-transform: uppercase; display: inline-block; }
-        #ui-text { font-size: 24px; line-height: 1.6; color: #ddd; white-space: pre-wrap; }
-        
-        .choices { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px; }
-        .btn-choice { 
-            background: rgba(20,20,20,0.4); border: 1px solid rgba(255,255,255,0.1); 
-            color: #888; padding: 15px 25px; font-family: inherit; font-size: 20px; 
-            cursor: pointer; flex: 1 1 45%; text-align: left; transition: 0.4s;
-        }
-        .btn-choice:hover { border-color: var(--accent); color: #fff; background: rgba(244, 211, 94, 0.05); padding-left: 35px; }
+        #ui-text { font-size: 26px; line-height: 1.3; margin-bottom: 25px; min-height: 80px; }
+        .choices { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .btn-choice { background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px 24px; font-family: 'VT323'; font-size: 22px; cursor: pointer; transition: 0.3s; }
+        .btn-choice:hover { background: var(--accent); color: #000; }
 
-        /* --- FINAL --- */
-        #end { 
-            position: absolute; inset: 0; background: #000; z-index: 6000; 
-            display: none; flex-direction: column; justify-content: center; 
-            align-items: center; text-align: center; padding: 40px;
-            opacity: 0; transition: opacity 4s ease;
-        }
-        #end-title { font-size: 70px; color: #700; letter-spacing: 12px; margin-bottom: 30px; font-family: 'Special Elite'; }
-        
-        .shake { animation: shakeAnim 0.6s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shakeAnim { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
-
+        #end { position: absolute; inset: 0; background: #000; z-index: 6000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="viewport">
-    <div id="game-frame">
-        <canvas id="dust-canvas"></canvas>
-        <div id="screen-fade"></div>
-        <div id="flash"></div>
-        <div id="vignette"></div>
+    <div id="vignette"></div>
 
-        <div id="chapel" class="scenery">
-            <svg viewBox="0 0 200 200">
-                <path d="M20,200 L180,200 L180,100 L100,20 L20,100 Z" fill="#111" />
-                <rect x="85" y="150" width="30" height="50" fill="#000" />
-                <path d="M100,40 L100,70 M85,55 L115,55" stroke="#333" stroke-width="2" />
-            </svg>
-        </div>
-        <div id="grave-1" class="scenery">
-            <svg viewBox="0 0 100 120">
-                <path d="M10,120 L90,120 Q90,20 50,20 Q10,20 10,120" fill="#1a1a1a" />
-                <path d="M40,50 L60,50 M50,40 L50,70" stroke="#000" stroke-width="2"/>
-            </svg>
-        </div>
-        <div id="grave-2" class="scenery">
-            <svg viewBox="0 0 80 100">
-                <rect x="10" y="20" width="60" height="80" fill="#151515" />
-                <circle cx="40" cy="45" r="10" fill="#000" />
-            </svg>
-        </div>
-        <div id="the-ring"></div>
+    <div id="menu">
+        <h3 class="menu-title">venha ver o pôr do sol</h3>
+        <button onclick="showIntro()" style="background:none; border:1px solid #fff; color:#fff; padding:12px 40px; font-size:26px; font-family:'VT323'; cursor:pointer;">INICIAR</button>
+    </div>
 
-        <div id="menu">
-            <h1 class="menu-title">SUSSURROS<br><span style="font-size: 18px; letter-spacing: 4px; color: #444;">O ÚLTIMO JAZIGO</span></h1>
-            <button class="btn-start" onclick="initIntro()">OUVIR O RELATO</button>
+    <div id="intro-overlay">
+        <button style="position:absolute; bottom:30px; right:30px; background:none; border:1px solid #444; color:#fff; cursor:pointer; font-family:'VT323'; padding:10px 20px;" onclick="startGame()">PULAR INTRO</button>
+        <div id="crawl-container">
+            <h2 style="text-align:center; font-family:'Special Elite'; font-size: 35px;">CONTEXTO</h2>
+            <p>O sol declina no horizonte de Minas, tingindo o céu com o sangue de uma tarde que se despede.</p>
+            <p>Raquel caminha ao lado de Ricardo, sem saber que cada passo dado sobre as folhas secas a aproxima de um destino escrito em mármore.</p>
+            <p>A obsessão dele é silenciosa, como o túmulo que os aguarda.</p>
         </div>
+    </div>
 
-        <div id="intro">
-            <div id="intro-scroll">
-                <p class="intro-text">
-                    O JARDIM DE PEDRA DOS MEIRELES...<br><br>
-                    Um santuário de mármore e silêncio onde os mortos descansam, e os vivos se perdem.<br><br>
-                    Marta veio buscar o que lhe foi prometido.<br>
-                    Ricardo trouxe apenas o peso do passado...<br><br>
-                    E uma chave que range como um segredo que nunca deveria ser aberto.<br><br>
-                    "A noite não perdoa quem procura por tesouros sob a terra."
-                </p>
-            </div>
-        </div>
+    <div id="scene-bg"></div>
+    
+    <div id="ui">
+        <div id="ui-name" style="color:var(--accent); font-family:'Special Elite'; font-size:20px; margin-bottom:10px;"></div>
+        <div id="ui-text"></div>
+        <div class="choices" id="choice-box"></div>
+    </div>
 
-        <div id="scene-bg"></div>
-        
-        <div class="char-area">
-            <div id="marta" class="actor" onclick="showThought('marta')">
-                <svg viewBox="0 0 100 150">
-                    <path d="M20,140 L80,140 L70,50 Q50,20 30,50 Z" fill="var(--marta)" />
-                    <circle cx="50" cy="45" r="32" fill="var(--marta)" />
-                    <rect x="42" y="44" width="3" height="3" fill="#000" />
-                    <rect x="55" y="44" width="3" height="3" fill="#000" />
-                </svg>
-            </div>
-            <div id="ricardo" class="actor" onclick="showThought('ricardo')">
-                <svg viewBox="0 0 100 150">
-                    <path d="M20,140 L80,140 L70,50 Q50,20 30,50 Z" fill="var(--ricardo)" />
-                    <circle cx="50" cy="45" r="32" fill="var(--ricardo)" />
-                    <rect x="42" y="44" width="3" height="3" fill="#000" />
-                    <rect x="55" y="44" width="3" height="3" fill="#000" />
-                </svg>
-            </div>
-        </div>
-
-        <div id="ui">
-            <div id="ui-name"></div>
-            <div id="ui-text"></div>
-            <div class="choices" id="choice-box"></div>
-        </div>
-
-        <div id="end">
-            <h1 id="end-title"></h1>
-            <p id="end-desc" style="font-size: 24px; color: #888; max-width: 600px; line-height: 1.6;"></p>
-            <button class="btn-start" onclick="location.reload()" style="margin-top: 40px;">RETORNAR AO VAZIO</button>
-        </div>
+    <div id="end">
+        <h1 id="end-title" style="color: var(--accent); font-family: 'Special Elite'; font-size: 45px;"></h1>
+        <p id="end-desc" style="font-size: 24px; max-width: 650px; color:#ccc;"></p>
+        <button onclick="location.reload()" style="background:none; border:1px solid #fff; color:#fff; padding:12px 40px; font-size:26px; font-family:'VT323'; cursor:pointer; margin-top:40px;">RECOMEÇAR</button>
     </div>
 </div>
 
 <script>
-    /* --- MOTOR DE ÁUDIO --- */
-    const Sound = {
-        ctx: null, master: null, amb: null, lfo: null, tension: 1,
+        const audio = {
+        ctx: null,
+        nodes: [],
+        gain: null,
+        ambientPlayer: null, // Player para o som das folhas secas
+
         init() {
+            // --- 1. CONFIGURAÇÃO DO SOM AMBIENTE (FOLHAS SECAS) ---
+            this.ambientPlayer = new Audio('https://www.image2url.com/r2/default/audio/1776029511733-0ca565c2-66a1-4843-9199-3ba48ed80387.mp3');
+            this.ambientPlayer.loop = true;
+            this.ambientPlayer.volume = 0.15; // Volume das folhas (0.0 a 1.0)
+            this.ambientPlayer.play().catch(e => console.log("Áudio ambiente aguardando interação..."));
+
+            // --- 2. CONFIGURAÇÃO DA TRILHA SINTÉTICA MELANCÓLICA ---
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            this.master = this.ctx.createGain();
-            this.master.connect(this.ctx.destination);
-            this.updateAmbience();
-        },
-        updateAmbience() {
-            if (this.amb) { this.amb.stop(); this.lfo.stop(); }
-            this.amb = this.ctx.createOscillator();
-            this.lfo = this.ctx.createOscillator();
-            const g = this.ctx.createGain();
-            
-            this.amb.type = 'sawtooth';
-            this.amb.frequency.setValueAtTime(this.tension === 1 ? 35 : 55, this.ctx.currentTime);
-            
-            this.lfo.frequency.value = this.tension === 1 ? 0.4 : 5;
-            const lfoG = this.ctx.createGain();
-            lfoG.gain.value = this.tension === 1 ? 8 : 25;
-            
-            g.gain.value = 0.015;
-            this.lfo.connect(lfoG); lfoG.connect(this.amb.frequency);
-            this.amb.connect(g); g.connect(this.master);
-            this.amb.start(); this.lfo.start();
-        },
-        play(freq, type = 'sine', dur = 0.1, vol = 0.01) {
-            const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
-            o.type = type; o.frequency.value = freq;
-            g.gain.setValueAtTime(vol, this.ctx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + dur);
-            o.connect(g); g.connect(this.master); o.start(); o.stop(this.ctx.currentTime + dur);
-        }
-    };
+            this.gain = this.ctx.createGain();
+            this.gain.gain.setValueAtTime(0, this.ctx.currentTime);
+            this.gain.connect(this.ctx.destination);
 
-    const story = {
-        "start": {
-            name: "Ricardo",
-            text: "O sol está se pondo, Marta... Veja como o céu sangra sobre os túmulos. \n\nSempre achei que os mortos são os únicos que sabem apreciar um belo crepúsculo.",
-            bg: "linear-gradient(180deg, #1a0a1a 0%, #000 100%)",
-            chars: ["ricardo"], focus: "ricardo", tension: 1,
-            thoughts: { ricardo: "Paciência...", marta: "Frio..." },
-            next: [ { t: "Por que nos encontramos aqui?", n: "motivo" }, { t: "Você está me assustando.", n: "medo" } ]
-        },
-        "motivo": {
-            name: "Marta",
-            text: "Você disse que tinha encontrado o anel da minha avó. O anel que sumiu no dia em que você partiu.\n\nPor que me trouxe a este lugar desolado?",
-            bg: "linear-gradient(180deg, #0a1a1a 0%, #000 100%)",
-            chars: ["marta", "ricardo"], focus: "marta", tension: 1,
-            thoughts: { ricardo: "Quase...", marta: "Ansiedade" },
-            next: [{ t: "Esperar a resposta dele", n: "revelacao" }]
-        },
-        "medo": {
-            name: "Ricardo",
-            text: "O medo é apenas o respeito pelo desconhecido. Você sempre teve pavor da eternidade, Marta.\n\nMas hoje... eu vou te apresentar a ela.",
-            bg: "linear-gradient(180deg, #2a0000 0%, #000 100%)",
-            chars: ["ricardo", "marta"], focus: "ricardo", tension: 2, shake: true,
-            thoughts: { ricardo: "Poder", marta: "Tremedeira" },
-            next: [{ t: "Recuar um passo", n: "revelacao" }]
-        },
-        "revelacao": {
-            name: "Ricardo",
-            text: "O anel está guardado. Todos os tesouros da minha família estão naquela capela.\n\nA porta de bronze é pesada, mas o silêncio lá dentro... é o único conforto que resta.",
-            bg: "#050505", chars: ["ricardo"], focus: "ricardo", tension: 1,
-            thoughts: { ricardo: "Herança", marta: "Desconfiança" },
-            next: [ { t: "Pedir para ver o anel agora", n: "exigencia" }, { t: "Olhar para a capela", n: "capela_olhar" } ]
-        },
-        "exigencia": {
-            name: "Marta",
-            text: "Chega de jogos, Ricardo! Me dê o anel e eu vou embora. O ar aqui está ficando impossível de respirar.",
-            bg: "linear-gradient(180deg, #1a002a 0%, #000 100%)",
-            chars: ["marta"], focus: "marta", tension: 2,
-            thoughts: { marta: "Sufoco", ricardo: "Sorriso" },
-            next: [{ t: "Ele começa a caminhar", n: "sorriso" }]
-        },
-        "capela_olhar": {
-            name: "Narrador",
-            text: "A capela dos Meireles ergue-se como um dente podre no meio do jardim.\n\nRicardo retira uma chave de bronze do bolso. O metal brilha com um reflexo doentio sob a lua.",
-            bg: "#000", chars: ["ricardo", "marta"], tension: 1,
-            thoughts: { ricardo: "Destino", marta: "Fuga?" },
-            next: [{ t: "Segui-lo até o portão", n: "portao" }]
-        },
-        "sorriso": {
-            name: "Ricardo",
-            text: "O amor requer sacrifício, Marta. Você nunca entendeu isso.\n\nVenha, o anel está sobre o altar. É o último desejo de um homem que nunca te esqueceu.",
-            bg: "linear-gradient(180deg, #400 0%, #000 100%)",
-            chars: ["ricardo"], focus: "ricardo", tension: 2,
-            thoughts: { ricardo: "Obsessão", marta: "Pânico" },
-            next: [ { t: "Entrar na capela", n: "final_morte" }, { t: "Recusar e correr", n: "fuga_desespero" } ]
-        },
-        "portao": {
-            name: "Ricardo",
-            text: "*O som da chave girando range como um osso quebrando*\n\nAqui estamos. O fim da linha. Ou talvez o começo de uma estadia muito... longa.",
-            bg: "#000", chars: ["ricardo", "marta"], tension: 2, shake: true,
-            thoughts: { ricardo: "Triunfo", marta: "Paralisia" },
-            next: [ { t: "Entrar com ele", n: "final_morte" }, { t: "Empurrá-lo e fugir", n: "fuga_desespero" } ]
-        },
-        "fuga_desespero": {
-            name: "Narrador",
-            text: "Você corre. Suas unhas arranham o metal frio do portão principal. ESTÁ TRANCADO! \n\nRicardo apenas observa à distância, segurando a única chave com um sorriso gélido.",
-            bg: "#000",
-            chars: ["marta"], focus: "marta", tension: 2,
-            shake: true,
-            thoughts: { marta: "Arrependimento", ricardo: "Desprezo" },
-            next: [
-                { t: "Gritar por socorro", n: "final_prisao" },
-                { t: "Enfrentar Ricardo", n: "final_morte" }
-            ]
-        },
-        "final_morte": { 
-            title: "O JAZIGO", 
-            desc: "O mundo se apaga com um som metálico final... \n\nVocê sente o hálito frio de Ricardo enquanto a porta de bronze se fecha para sempre. \n\n'Finalmente juntos...' ele sussurra no escuro absoluto. \n\nNão haverá amanhã para você.", 
-            end: true, 
-            type: "death" 
-        },
-        "final_prisao": { 
-            title: "A SOMBRA", 
-            desc: "Seus gritos tornam-se parte do vento gélido. \n\nRicardo caminha em direção à saída, sua silhueta sumindo na névoa da noite. \n\nVocê foi deixada para trás. Condenada a habitar o silêncio entre as pedras. \n\nPara sempre.", 
-            end: true, 
-            type: "shadow" 
-        }
-    };
-
-    let curId = "start";
-    let typing = false;
-    let particles = [];
-    const canvas = document.getElementById('dust-canvas');
-    const ctx = canvas.getContext('2d');
-
-    function initParticles() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        for(let i=0; i<80; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 2 + 0.5,
-                vx: (Math.random() - 0.5) * 0.3,
-                vy: (Math.random() - 0.5) * 0.3,
-                color: 'rgba(255, 255, 255, 0.2)'
+            // Notas graves e melancólicas (Ré Menor)
+            [73.42, 87.31, 110.00, 146.83].forEach((f, i) => {
+                const osc = this.ctx.createOscillator();
+                const vca = this.ctx.createGain();
+                osc.type = i % 2 === 0 ? 'triangle' : 'sine';
+                osc.frequency.setValueAtTime(f, this.ctx.currentTime);
+                vca.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                osc.connect(vca); vca.connect(this.gain);
+                osc.start(); this.nodes.push(osc);
             });
+            // Fade in suave da música
+            this.gain.gain.linearRampToValueAtTime(0.15, this.ctx.currentTime + 5);
+        },
+
+        // Função para parar os sons no final do jogo
+        stopAll() {
+            if(this.ambientPlayer) this.ambientPlayer.pause();
+            if(this.gain) this.gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 2);
+        },
+
+        // Sons de digitação e impactos
+        playTone(freq, duration, type = 'sine', volume = 0.1) {
+            if(!this.ctx) return;
+            const o = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            o.type = type;
+            o.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            g.gain.setValueAtTime(volume, this.ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+            o.connect(g); g.connect(this.ctx.destination);
+            o.start(); o.stop(this.ctx.currentTime + duration);
         }
-    }
+    };
 
-    function updateParticles() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            let mult = SoundManager.tensionLevel === 2 ? 3 : 1;
-            p.x += p.vx * mult; p.y += p.vy * mult;
-            if(p.x < 0) p.x = canvas.width; if(p.x > canvas.width) p.x = 0;
-            if(p.y < 0) p.y = canvas.height; if(p.y > canvas.height) p.y = 0;
-            ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-        });
-        requestAnimationFrame(updateParticles);
-    }
+    let curId = "p1";
+    let typing = false;
 
-    function showThought(actorId) {
-        if(typing) return;
-        const actor = document.getElementById(actorId);
-        if(!actor.classList.contains('active')) return;
-        SoundManager.playWhisper();
-        const node = story[curId];
-        const text = node.thoughts[actorId];
-        if(!text) return;
-        const old = actor.querySelector('.thought-bubble');
-        if(old) old.remove();
-        const bubble = document.createElement('div');
-        bubble.className = 'thought-bubble';
-        bubble.innerText = `...${text}...`;
-        actor.appendChild(bubble);
-    }
+    // Definição da história com os links das imagens na ordem correta
+    const story = {
+        "p1": { name: "Narrador", text: "Raquel e Ricardo caminham lado a lado. O silêncio dele é mais pesado que o mármore ao redor.", img: "https://i.imgur.com/7yra366.png", next: [{ t: "Avançar", n: "p2" }] },
+        
+        "p2": { name: "Raquel", text: "Ricardo, por que estamos aqui? O sol já está quase sumindo... você está me assustando.", img: "https://i.imgur.com/97O9WbL.png", next: [{ t: "Ouvir", n: "p3" }] },
+        
+        "p3": { name: "Ricardo", text: "O sol se põe melhor ali. No jazigo dos Meireles, o tempo para.", img: "https://i.imgur.com/QsGO8et.png", next: [{ t: "Segui-lo", n: "p4" }] },
+        
+        "p4": { name: "Narrador", text: "Vocês param diante da porta pesada. O ar cheira a terra e esquecimento.", img: "https://i.imgur.com/mQWgs2W.png", next: [{ t: "Entrar na Tumba", n: "entrar" }, { t: "Fugir!", n: "fuga" }] },
+        
+        "entrar": { name: "Raquel", text: "Está tão frio aqui dentro... Ricardo, onde você está?", img: "https://i.imgur.com/mGmcspt.png", next: [{ t: "Olhar para trás", n: "morte" }] },
+        
+        "morte": { title: "ETERNA", desc: "A porta se fecha. O último som que Raquel ouve é o da tranca. Ricardo agora a possui para sempre no silêncio da tumba.", img: "https://i.imgur.com/E1Eihrf.png", end: true, type: "death" },
+        
+        "fuga": { name: "Raquel", text: "Não! Eu não vou entrar! Preciso sair daqui agora!", img: "https://i.imgur.com/8yzNODa.jpeg", next: [{ t: "Correr para o portão", n: "trancado" }] },
+        
+        "trancado": { name: "Narrador", text: "O portão está trancado. Ricardo aparece logo atrás, segurando as chaves com um olhar sombrio.", img: "https://i.imgur.com/Nlvf50h.png", next: [{ t: "Implorar por misericórdia", n: "sobrevive" }] },
+        
+        "sobrevive": { title: "MISERICÓRDIA", desc: "Suas súplicas tocam algo que restou da alma de Ricardo. Ele, em sua confusão, abre o portão. Raquel corre, mas nunca deixará de olhar para trás.", img: "https://i.imgur.com/wJdaDVR.png", end: true, type: "win" }
+    };
 
-    function initIntro() {
-        SoundManager.init();
-        document.getElementById('menu').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('menu').style.display = 'none';
-            const intro = document.getElementById('intro');
-            const scroll = document.getElementById('intro-scroll');
-            intro.style.display = 'flex';
-            scroll.classList.add('scrolling');
-            setTimeout(startGame, 27000);
-        }, 2000);
+    function showIntro() {
+        audio.init(); 
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('intro-overlay').style.display = 'flex';
+        // Começa o jogo automaticamente após a animação de texto (24.5s)
+        setTimeout(startGame, 24500); 
     }
 
     function startGame() {
-        document.getElementById('intro').style.display = 'none';
+        document.getElementById('intro-overlay').style.display = 'none';
         document.getElementById('ui').style.display = 'block';
-        initParticles();
-        updateParticles();
         renderScene();
     }
 
     function renderScene() {
         const node = story[curId];
-        if(node.end) { animateEnd(node); return; }
+        const bg = document.getElementById('scene-bg');
+        const ui = document.getElementById('ui');
 
-        if(node.tension !== undefined && node.tension !== SoundManager.tensionLevel) {
-            SoundManager.tensionLevel = node.tension;
-            SoundManager.playAmbience(); 
-        }
-
-        const fade = document.getElementById('screen-fade');
-        fade.style.opacity = "1";
+        ui.style.opacity = '0';
+        bg.style.opacity = '0';
+        bg.style.filter = 'blur(15px)';
+        bg.style.transform = 'scale(1.1)';
 
         setTimeout(() => {
-            if(node.shake) {
-                SoundManager.playImpact();
-                document.getElementById('viewport').classList.add('shake');
-                setTimeout(() => document.getElementById('viewport').classList.remove('shake'), 500);
+            if (node.end) {
+                audio.stopAll(); // Para as folhas e a música no final
+                document.getElementById('end').style.display = 'flex';
+                document.getElementById('end-title').innerText = node.title;
+                document.getElementById('end-desc').innerText = node.desc;
+                bg.style.backgroundImage = `url(${node.img})`;
+                bg.style.opacity = '0.5';
+                bg.style.filter = 'blur(3px)';
+                
+                if(node.type === "death") audio.playTone(45, 5, 'sawtooth', 0.25); 
+                else audio.playTone(220, 2, 'sine', 0.1);
+                return;
             }
-            document.getElementById('scene-bg').style.background = node.bg;
-            document.getElementById('marta').classList.toggle('active', node.chars.includes('marta'));
-            document.getElementById('ricardo').classList.toggle('active', node.chars.includes('ricardo'));
-            document.getElementById('marta').classList.toggle('focus', node.focus === 'marta');
-            document.getElementById('ricardo').classList.toggle('focus', node.focus === 'ricardo');
+
+            bg.style.backgroundImage = `url(${node.img})`;
             document.getElementById('ui-name').innerText = node.name;
-            fade.style.opacity = "0";
-            typeText(node.text);
-        }, 1200);
+            bg.style.opacity = '0.7';
+            bg.style.filter = 'blur(0px)';
+            bg.style.transform = 'scale(1.0)';
+            
+            setTimeout(() => {
+                ui.style.opacity = '1';
+                typeText(node.text);
+            }, 1000);
+        }, 1200); 
     }
 
     async function typeText(t) {
         typing = true;
         const el = document.getElementById('ui-text');
-        el.textContent = ""; document.getElementById('choice-box').innerHTML = "";
-        for(let i=0; i<t.length; i++) {
+        const cb = document.getElementById('choice-box');
+        el.textContent = ""; cb.innerHTML = "";
+        
+        for (let i = 0; i < t.length; i++) {
             el.textContent += t[i];
-            if(t[i] !== " " && t[i] !== "\n") SoundManager.playType();
-            await new Promise(r => setTimeout(r, ".!?".includes(t[i]) ? 500 : (SoundManager.tensionLevel === 1 ? 35 : 20)));
+            if(i % 4 === 0) audio.playTone(180, 0.04, 'sine', 0.015); 
+            await new Promise(r => setTimeout(r, 45));
         }
+        
         typing = false;
-        showChoices();
-    }
-
-    function showChoices() {
         story[curId].next.forEach(o => {
             const b = document.createElement('button');
             b.className = 'btn-choice';
-            b.innerText = "◈ " + o.t;
+            b.innerText = o.t;
             b.onclick = () => { if(!typing) { curId = o.n; renderScene(); } };
-            document.getElementById('choice-box').appendChild(b);
+            cb.appendChild(b);
         });
     }
-
-    function animateEnd(node) {
-        document.getElementById('ui').style.display = 'none';
-        const marta = document.getElementById('marta');
-        const ricardo = document.getElementById('ricardo');
-
-        // MÚSICA MORRE E IMPACTO TOCA
-        SoundManager.stopAll();
-        setTimeout(() => SoundManager.playImpact(true), 100);
-
-        if(node.type === "death") {
-            // Fade Out dos personagens
-            marta.style.transition = "opacity 2s, transform 2s";
-            ricardo.style.transition = "opacity 2s, transform 2s";
-            marta.style.opacity = "0";
-            ricardo.style.opacity = "0";
-            marta.style.transform = "translateY(50px)";
-            ricardo.style.transform = "translateY(50px)";
-            
-            document.getElementById('viewport').classList.add('shake');
-            document.getElementById('flash').classList.add('morte-flash');
-            
-            setTimeout(() => showEndUI(node), 2500);
-        } else {
-            ricardo.style.opacity = '0';
-            ricardo.style.transition = 'opacity 4s';
-            marta.style.filter = 'grayscale(100%)';
-            setTimeout(() => showEndUI(node), 3000);
-        }
-    }
-
-    function showEndUI(node) {
-        const end = document.getElementById('end');
-        end.style.display = 'flex';
-        setTimeout(() => end.style.opacity = "1", 100);
-        
-        document.getElementById('end-title').innerText = node.title;
-        const desc = document.getElementById('end-desc');
-        desc.textContent = "";
-        
-        let i = 0;
-        const t = setInterval(() => {
-            desc.textContent += node.desc[i];
-            if(node.desc[i] !== " ") SoundManager.playType();
-            i++;
-            if(i >= node.desc.length) clearInterval(t);
-        }, 50);
-    }
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
-
 </script>
 </body>
 </html>
